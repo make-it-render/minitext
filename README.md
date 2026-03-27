@@ -1,4 +1,4 @@
-# mir-text
+# minitext
 
 BDF font loading and text rendering library for Zig.
 
@@ -18,7 +18,7 @@ Parses BDF font files and renders UTF-8 text to monochrome bitmaps suitable for 
 ### Install
 
 ```sh
-zig fetch --save git+https://github.com/make-it-render/mir-text
+zig fetch --save git+https://github.com/make-it-render/minitext
 ```
 
 ### build.zig

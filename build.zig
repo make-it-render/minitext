@@ -5,7 +5,7 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const text = b.addModule(
-        "text",
+        "minitext",
         .{
             .root_source_file = b.path("src/root.zig"),
             .target = target,

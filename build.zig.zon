@@ -1,6 +1,6 @@
 .{
-    .name = .text,
-    .fingerprint = 0x3b8ba7c738390150,
+    .name = .minitext,
+    .fingerprint = 0x8cf160f89c8d372f,
     .version = "0.0.0",
     .dependencies = .{},
     .paths = .{
