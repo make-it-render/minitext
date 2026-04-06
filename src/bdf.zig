@@ -9,7 +9,7 @@ pub fn parse(allocator: std.mem.Allocator, reader: *std.Io.Reader) !common.Font 
     };
 
     var glyph = common.Glyph{
-        .bitmap = &[0]u1{},
+        .bitmap = &[0]u8{},
         .encoding = 0,
         .advance = 0,
         .bbox = .{
@@ -19,7 +19,7 @@ pub fn parse(allocator: std.mem.Allocator, reader: *std.Io.Reader) !common.Font 
             .height = 0,
         },
     };
-    var bitmap: []u1 = &[0]u1{};
+    var bitmap: []u8 = &[0]u8{};
 
     var bitmap_started: bool = false;
     var bitmap_pos: usize = 0;
@@ -71,7 +71,7 @@ pub fn parse(allocator: std.mem.Allocator, reader: *std.Io.Reader) !common.Font 
             const bitmap_size = @as(usize, glyph.bbox.height) * bytes_per_row * 8;
             //bitmap = try allocator.alloc(u1, bitmap_size);
             if (buf_alloc) |*ba| {
-                bitmap = try ba.allocator().alloc(u1, bitmap_size);
+                bitmap = try ba.allocator().alloc(u8, bitmap_size);
             } else {
                 return error.InvalidFormat;
             }
@@ -94,7 +94,7 @@ pub fn parse(allocator: std.mem.Allocator, reader: *std.Io.Reader) !common.Font 
                         if (bit < 32) {
                             if (bitmap_pos >= bitmap.len) return error.InvalidFormat;
                             if ((aligned_value >> @intCast(31 - bit)) & 1 != 0) {
-                                bitmap[bitmap_pos] = 1;
+                                bitmap[bitmap_pos] = 255;
                             } else {
                                 bitmap[bitmap_pos] = 0;
                             }
@@ -146,25 +146,26 @@ test "read unifont" {
     try testing.expectEqual(-2, charA.bbox.y);
     try testing.expectEqual(16 * 8, charA.bitmap.len);
 
-    const ABitmap = &[8 * 16]u1{
+    const f: u8 = 255;
+    const ABitmap = &[8 * 16]u8{
         0, 0, 0, 0, 0, 0, 0, 0, //0..7
         0, 0, 0, 0, 0, 0, 0, 0, //8..15
         0, 0, 0, 0, 0, 0, 0, 0, //16..23
         0, 0, 0, 0, 0, 0, 0, 0, //24..31
-        0, 0, 0, 1, 1, 0, 0, 0, //32..39
-        0, 0, 1, 0, 0, 1, 0, 0, //40..47
-        0, 0, 1, 0, 0, 1, 0, 0, //48..55
-        0, 1, 0, 0, 0, 0, 1, 0, //56..63
-        0, 1, 0, 0, 0, 0, 1, 0, //64..71
-        0, 1, 1, 1, 1, 1, 1, 0, //72..79
-        0, 1, 0, 0, 0, 0, 1, 0, //80..87
-        0, 1, 0, 0, 0, 0, 1, 0, //88..95
-        0, 1, 0, 0, 0, 0, 1, 0, //96..103
-        0, 1, 0, 0, 0, 0, 1, 0, //104..111
+        0, 0, 0, f, f, 0, 0, 0, //32..39
+        0, 0, f, 0, 0, f, 0, 0, //40..47
+        0, 0, f, 0, 0, f, 0, 0, //48..55
+        0, f, 0, 0, 0, 0, f, 0, //56..63
+        0, f, 0, 0, 0, 0, f, 0, //64..71
+        0, f, f, f, f, f, f, 0, //72..79
+        0, f, 0, 0, 0, 0, f, 0, //80..87
+        0, f, 0, 0, 0, 0, f, 0, //88..95
+        0, f, 0, 0, 0, 0, f, 0, //96..103
+        0, f, 0, 0, 0, 0, f, 0, //104..111
         0, 0, 0, 0, 0, 0, 0, 0, //112..119
         0, 0, 0, 0, 0, 0, 0, 0, //120..128
     };
-    try testing.expectEqualSlices(u1, ABitmap, charA.bitmap);
+    try testing.expectEqualSlices(u8, ABitmap, charA.bitmap);
 }
 
 const std = @import("std");

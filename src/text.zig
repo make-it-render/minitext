@@ -26,7 +26,7 @@ pub fn render(
     const height = metrics.height;
     var iter = std.unicode.Utf8Iterator{ .bytes = text, .i = 0 };
 
-    const bitmap = try allocator.alloc(u1, width * height);
+    const bitmap = try allocator.alloc(u8, width * height);
     @memset(bitmap, 0);
 
     // now "render" to the bitmap
@@ -39,10 +39,10 @@ pub fn render(
             var col: u16 = 0;
             while (col < glyph.bbox.width) : (col += 1) {
                 const g_index = (row * glyph.bbox.width) + col;
-                if (glyph.bitmap[g_index] == 1) {
+                if (glyph.bitmap[g_index] > 0) {
                     const idx = @as(usize, global_x + col) + @as(usize, row) * @as(usize, width);
                     if (idx < bitmap.len) {
-                        bitmap[idx] = 1;
+                        bitmap[idx] = glyph.bitmap[g_index];
                     }
                 }
             }
@@ -70,8 +70,8 @@ test "Render a short phrase" {
     try testing.expectEqual(48, result.width);
     try testing.expectEqual(16, result.height);
 
-    const x = 1;
-    const expected: []const u1 = &[_]u1{
+    const x: u8 = 255;
+    const expected: []const u8 = &[_]u8{
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0..47
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 48..97
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 96..143
@@ -89,7 +89,7 @@ test "Render a short phrase" {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, x, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 672..719
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, x, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 720..767
     };
-    try testing.expectEqualSlices(u1, expected, result.bitmap);
+    try testing.expectEqualSlices(u8, expected, result.bitmap);
 }
 
 test "measure returns correct dimensions" {

@@ -33,7 +33,7 @@ pub const GlyphMap = std.AutoHashMapUnmanaged(u32, Glyph);
 
 pub const Glyph = struct {
     encoding: u21,
-    bitmap: []const u1,
+    bitmap: []const u8,
     advance: u8,
     bbox: BBox,
 };
@@ -48,7 +48,7 @@ pub const BBox = struct {
 pub const Bitmap = struct {
     width: u16,
     height: u16,
-    bitmap: []const u1,
+    bitmap: []const u8,
 
     allocator: std.mem.Allocator,
 
@@ -61,11 +61,11 @@ pub const Bitmap = struct {
     }
 };
 
-pub fn bitmapToRgba(allocator: std.mem.Allocator, bitmap: []const u1, pixel: []const u8) ![]u8 {
+pub fn bitmapToRgba(allocator: std.mem.Allocator, bitmap: []const u8, pixel: []const u8) ![]u8 {
     if (pixel.len != 4) return error.InvalidPixelSize;
     const buffer = try allocator.alloc(u8, bitmap.len * 4);
     for (bitmap, 0..) |b, i| {
-        if (b == 1) {
+        if (b > 0) {
             @memcpy(buffer[i * 4 ..][0..4], pixel);
         } else {
             @memcpy(buffer[i * 4 ..][0..4], &[4]u8{ 0, 0, 0, 0 });
